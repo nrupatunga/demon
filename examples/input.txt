@@ -1,0 +1,3 @@
+/home/nrupatunga/2018/demon/examples/kf_0.png /home/nrupatunga/2018/demon/examples/kf_1.png
+/home/nrupatunga/2018/demon/examples/sculpture1.png /home/nrupatunga/2018/demon/examples/sculpture2.png
+/home/nrupatunga/2018/demon/examples/kf_4.png /home/nrupatunga/2018/demon/examples/kf_5.png

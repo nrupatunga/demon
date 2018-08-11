@@ -62,8 +62,8 @@ else: # running on cpu requires channels_last data format
 #
 
 # read data
-img1 = Image.open(os.path.join(examples_dir,'sculpture1.png'))
-img2 = Image.open(os.path.join(examples_dir,'sculpture2.png'))
+img1 = Image.open(os.path.join(examples_dir,'kf_4.png'))
+img2 = Image.open(os.path.join(examples_dir,'kf_5.png'))
 
 input_data = prepare_input_data(img1,img2,data_format)
 
