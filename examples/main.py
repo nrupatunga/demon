@@ -16,7 +16,8 @@ from helper import indices as find
 from depthmotionnet.networks_original import BootstrapNet, IterativeNet, RefinementNet
 from open3d import PointCloud, Vector3dVector, draw_geometries
 from camera_params import (fx, fy, cx, cy, relDepthThresh)
-import pyximport; pyximport.install()
+import pyximport
+pyximport.install()
 
 examples_dir = pathmagic.examples_dir
 weights_dir = os.path.join(examples_dir, '..', 'weights')
