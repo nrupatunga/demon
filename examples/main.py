@@ -52,6 +52,8 @@ if __name__ == "__main__":
             # run demon and visualise
             out_64_48, out_256_192 = objDemonDepth.run(img1, img2)
             objDemonDepth.open3dVis(out_64_48)
+
+            # run eigen and visualise
             img1 = img1.resize((WIDTH, HEIGHT), Im.BICUBIC)
             img1 = np.asarray(img1)
             output = session.run([objVggDepth.normal, objVggDepth.depth], feed_dict={objVggDepth.imgs: [img1]})
@@ -62,9 +64,8 @@ if __name__ == "__main__":
             out_140_109 = {}
             img1 = np.asarray(img1)
             img1 = img1[np.newaxis, ...]
-            out_140_109['image'] = img1
-            __import__('pdb').set_trace()
-            out_140_109['depth'] = output[0]
-            out_140_109['normal'] = output[1]
-            objDemonDepth.open3dVis(out_140_109)
-            __import__('pdb').set_trace()
+            # out_140_109['image'] = img1
+            # out_140_109['depth'] = output[0]
+            # out_140_109['normal'] = output[1]
+            # objVggDepth.open3dVis(np.squeeze(output[1]), np.squeeze(output[0]), np.squeeze(img1[0]))
+            objVggDepth.open3dVis(np.squeeze(output[1]), None, np.squeeze(img1[0]))

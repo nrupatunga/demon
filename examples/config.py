@@ -55,11 +55,11 @@ TIMEOUT = 100
 # refined median
 REFINED_MEDIAN = True
 
-# Slam camera parameter
-fx = 245.803755089
-fy = 245.801752003
-cx = 156.861570037
-cy = 121.329457123
+# Slam camera parameter for dims 147x109
+fx = 245.803755089 / 2.1769
+fy = 245.801752003 / 2.2018
+cx = 156.861570037 / 2.1769
+cy = 121.329457123 / 2.2018
 
 fxi = 1 / fx
 fyi = 1 / fy

@@ -22,6 +22,9 @@ import glob
 import time
 from PIL import Image
 import config
+from open3d import PointCloud, Vector3dVector, draw_geometries
+from camera_params import relDepthThresh
+from helper import indices as find
 
 # Keynames of different stacks
 imagenet_stack = config.imagenet_stack
@@ -37,6 +40,28 @@ class Weights_bias(object):
         """TODO: to be defined1. """
         self.W = W
         self.b = b
+
+
+def get3dpoints(depthmap, image):
+    """TODO: Docstring for function.
+    """
+
+    mappoints = []
+    height = depthmap.shape[0]
+    width = depthmap.shape[1]
+    with open('points.txt', 'w') as f:
+        for i in range(height):
+            for j in range(width):
+                z = depthmap[i, j]
+                x = (j * config.fxi + config.cxi) * z
+                y = (i * config.fyi + config.cyi) * z
+
+                point = [x, y, z]
+                pixel_c = image[i, j, :]
+                f.write('{}, {}, {}, {}, {}, {}\n'.format(x, y, z, pixel_c[2], pixel_c[1], pixel_c[0]))
+                mappoints.append(point)
+
+    return mappoints
 
 
 class vgg_depth_normal(object):
@@ -89,6 +114,120 @@ class vgg_depth_normal(object):
 
         # build the network
         self.build_net()
+
+    def compute_local_planes(self, X, Y, Z):
+        """compute the local planes, normals, normals confidence
+
+        Args:
+            X: x coordinates
+            Y: y coordinates
+            Z: z coordinates
+
+        Returns:
+            imgPlanes: image planes
+            imgNormals: normals for each 3d-point
+            imgConfs: confidence maps
+        """
+
+        H = 109
+        W = 147
+
+        N = H * W
+
+        # store 3d points and convert to homogeneous coordinates
+        pts = np.zeros((N, 4))
+        pts[:, 0] = X.ravel()
+        pts[:, 1] = Y.ravel()
+        pts[:, 2] = Z.ravel()
+        pts[:, 3] = np.ones(N)
+
+        u, v = np.meshgrid(np.arange(0, W), np.arange(0, H))
+        u, v = u.flatten('F'), v.flatten('F')
+        blockWidths = [-1, -3, -6, -9, 0, 1, 3, 6, 9]
+        nu, nv = np.meshgrid(blockWidths, blockWidths)
+
+        nx = np.zeros((H, W)).flatten()
+        ny = np.zeros((H, W)).flatten()
+        nz = np.zeros((H, W)).flatten()
+        nd = np.zeros((H, W)).flatten()
+        imgConfs = np.zeros((H, W)).flatten()
+
+        ind_all = find(Z, lambda x: x != 0)
+        for k in ind_all:
+            u2 = u[k] + nu
+            v2 = v[k] + nv
+
+            # check that u2 and v2 are in the image
+            valid = (u2 >= 0) & (v2 >= 0) & (u2 < W) & (v2 < H)
+            u2 = u2[valid]
+            v2 = v2[valid]
+            ind2 = u2 * H + v2
+            ind2 = sorted(ind2)
+
+            # check that depth difference is not too large
+            valid = abs(Z[ind2] - Z[k]) < Z[k] * relDepthThresh
+            u2 = u2[valid]
+            v2 = v2[valid]
+            ind2 = u2 * H + v2
+            ind2 = sorted(ind2)
+
+            if len(u2) < 3:
+                continue
+
+            A = pts[ind2]
+            [eigvalues, eigvectors] = np.linalg.eig(np.matmul(A.transpose(), A))
+            idx = eigvalues.argsort()
+            eigvalues = eigvalues[idx]
+            eigvectors = eigvectors[:, idx]
+
+            nx[k] = eigvectors[0, 0]
+            ny[k] = eigvectors[1, 0]
+            nz[k] = eigvectors[2, 0]
+            nd[k] = eigvectors[3, 0]
+            imgConfs[k] = 1 - (np.sqrt(eigvalues[0] / eigvalues[1]))
+
+        nx = -1 * np.reshape(nx, (H, W, 1), order='F')
+        ny = -1 * np.reshape(ny, (H, W, 1), order='F')
+        nz = -1 * np.reshape(nz, (H, W, 1), order='F')
+        nd = -1 * np.reshape(nd, (H, W, 1), order='F')
+        imgConfs = -1 * np.reshape(imgConfs, (H, W), order='F')
+
+        imgPlanes = np.concatenate((nx, ny, nz, nd), axis=2)
+        length = np.sqrt(np.square(nx) + np.square(ny) + np.square(nz))
+        eps = 2.2204e-16
+
+        imgPlanes = np.divide(imgPlanes, np.repeat(length + eps, 4, axis=2))
+        imgNormals = imgPlanes[:, :, 0:3]
+        return imgPlanes, imgNormals, imgConfs
+
+    def open3dVis(self, depth, normal=None, color=None):
+        """Visualize 3d map points from eigen depth
+
+        Args:
+            depth: depth map
+            normal: normal map
+            color: rgb image
+
+        """
+        points = get3dpoints(depth, color)
+        points = np.asarray(points)
+        pcd = PointCloud()
+        pcd.points = Vector3dVector(points)
+
+        if color is not None:
+            color = np.reshape(color, [-1, 3])
+            pcd.colors = Vector3dVector(color / 255.)
+
+        if normal is not None:
+            normal = np.reshape(normal, [-1, 3])
+        else:
+            _, normal, _ = self.compute_local_planes(points[:, 0],
+                                                     points[:, 1],
+                                                     points[:, 2])
+            normal = np.reshape(normal, [-1, 3])
+
+        pcd.normals = Vector3dVector(normal)
+        draw_geometries([pcd])
 
     def write_summaries(self):
         """ writes the tensorflow summaries
