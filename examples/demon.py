@@ -1,5 +1,5 @@
 '''
-File: main.py
+File: demon.py
 Author: Nrupatunga
 Email: nrupatunga.tunga@gmail.com
 Github: https://github.com/nrupatunga
@@ -10,23 +10,23 @@ Available Modules:
     run:
         - This module outputs depth, normal map of dimensions 64x48 and 256x92
 
-    compute_local_planes:
-        - takes point cloud (x, y, z) and estimates the normal for each point in the point cloud
-
-    __get_point_cloud (private method):
-        - get the point cloud from depth map
-
-    __compute_point_cloud_from_depthmap:
-        - helper function for __get_point_cloud
-
     write2pcl:
         - write the point cloud to pcl format
 
-    vis_pointcloud:
+    gtk3dVis:
         - visualize point cloud using gtk library
 
     open3dVis:
         - Open3d visualization of point cloud
+
+    __compute_local_planes:
+        - takes point cloud (x, y, z) and estimates the normal for each point in the point cloud
+
+    get_point_cloud:
+        - get the point cloud from depth map
+
+    __compute_point_cloud_from_depthmap:
+        - helper function for get_point_cloud
 '''
 
 import tensorflow as tf
@@ -176,7 +176,7 @@ class DemonNet(object):
 
         return out_64_48, out_256_192
 
-    def compute_local_planes(self, X, Y, Z):
+    def __compute_local_planes(self, X, Y, Z):
         """compute the local planes, normals, normals confidence
 
         Args:
@@ -261,7 +261,7 @@ class DemonNet(object):
         imgNormals = imgPlanes[:, :, 0:3]
         return imgPlanes, imgNormals, imgConfs
 
-    def vis_pointcloud(self):
+    def gtk3dVis(self):
         """visualize point cloud
         """
 
@@ -306,7 +306,7 @@ class DemonNet(object):
         from vis_cython import compute_point_cloud_from_depthmap as _compute_point_cloud_from_depthmap
         return _compute_point_cloud_from_depthmap(depth, K, R, t, normals, colors)
 
-    def __get_point_cloud(self, inverse_depth, image=None):
+    def get_point_cloud(self, inverse_depth, image=None):
         """Get tht point cloud
 
         Args:
@@ -343,10 +343,12 @@ class DemonNet(object):
 
         Args:
             data: dict containing, input, depth, normal
+
+        TODO: Debug writing header at the beginning to the file
         """
 
         depth = data['depth'][0, 0]
-        xyz = self.__get_point_cloud(depth)
+        xyz = self.get_point_cloud(depth)
         color = data['image'].transpose().reshape((-1, 3))
 
         color_pack = []
@@ -378,12 +380,12 @@ class DemonNet(object):
         """
         pcd = PointCloud()
         depth = data['depth'][0, 0]
-        xyz, _ = self.__get_point_cloud(depth, data['image'][0])
+        xyz, _ = self.get_point_cloud(depth, data['image'][0])
         if 'normal' in data.keys():
             normals = np.transpose(data['normal'][0],  (1, 2, 0))
             normals = normals.reshape((-1, 3))
         else:
-            _, normals, _ = self.compute_local_planes(xyz[:, 0], xyz[:, 1], xyz[:, 2])
+            _, normals, _ = self.__compute_local_planes(xyz[:, 0], xyz[:, 1], xyz[:, 2])
             normals = normals.reshape((-1, 3))
 
         color = np.transpose(data['image'][0], [1, 2, 0]).reshape((-1, 3))
@@ -405,7 +407,7 @@ if __name__ == "__main__":
             img1 = Im.open(img_path_1)
             img2 = Im.open(img_path_2)
             out_64_48, out_256_192 = objD.run(img1, img2)
-            # objD.vis_pointcloud()
+            # objD.gtk3dVis()
             objD.open3dVis(out_64_48)
             # objD.open3dVis(out_256_192)
             # objD.write2pcl(out_64_48)
