@@ -108,7 +108,18 @@ class DemonNet(object):
                                              result['predict_depth2'],
                                              result['predict_normal2'],
                                              result['predict_rotation'],
+                                             # result['predict_conf2'],
                                              result['predict_translation'])
+
+        # show image
+        # __import__('pdb').set_trace()
+        # plt.subplot(2, 2, 1)
+        # plt.imshow(result['predict_conf2'][0, 0, :, :], cmap='jet')
+        # plt.subplot(2, 2, 2)
+        # plt.imshow(result['predict_conf2'][0, 1, :, :], cmap='jet')
+        # plt.subplot(2, 2, 3)
+        # plt.imshow(result['predict_depth2'][0, 0, :, :], cmap='jet')
+        # plt.show()
 
         rotation = result['predict_rotation']
         translation = result['predict_translation']
@@ -127,6 +138,7 @@ class DemonNet(object):
         out_64_48['translation'] = translation
         out_64_48['depth'] = result['predict_depth2']
         out_64_48['normal'] = result['predict_normal2']
+        out_64_48['conf'] = result['predict_conf2']
 
         result = self.refine_net.eval(input_data['image1'], result['predict_depth2'])
         out_256_192 = {}
@@ -370,7 +382,6 @@ if __name__ == "__main__":
             img2 = Im.open(img_path_2)
             out_64_48, out_256_192 = objD.run(img1, img2)
             # objD.vis_pointcloud()
-            __import__('pdb').set_trace()
             objD.open3dVis(out_64_48)
             # objD.open3dVis(out_256_192)
             # objD.write2pcl(out_64_48)

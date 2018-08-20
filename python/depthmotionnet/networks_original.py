@@ -76,6 +76,7 @@ class BootstrapNet:
         fetches = {
                 'predict_flow5': self.predict_flow5,
                 'predict_flow2': self.predict_flow2,
+                'predict_conf2': self.predict_conf2,
                 'predict_depth2': self.netDM1_result['predict_depth2'],
                 'predict_normal2': self.netDM1_result['predict_normal2'],
                 'predict_rotation': self.netDM1_result['predict_rotation'],
@@ -182,6 +183,7 @@ class IterativeNet:
         fetches = {
                 'predict_flow5': self.predict_flow5,
                 'predict_flow2': self.predict_flow2,
+                'predict_conf2': self.predict_conf2,
                 'predict_depth2': self.netDM2_result['predict_depth2'],
                 'predict_normal2': self.netDM2_result['predict_normal2'],
                 'predict_rotation': self.netDM2_result['predict_rotation'],

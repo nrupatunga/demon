@@ -12,6 +12,7 @@ from demon import DemonNet
 import tensorflow as tf
 import numpy as np
 import config
+import time
 
 # dimensions of DL depth
 WIDTH = config.WIDTH
@@ -50,13 +51,17 @@ if __name__ == "__main__":
             img2 = Im.open(img_path_2)
 
             # run demon and visualise
+            start = time.time()
             out_64_48, out_256_192 = objDemonDepth.run(img1, img2)
+            print('Total Demon Time = {}'.format(time.time() - start))
             objDemonDepth.open3dVis(out_64_48)
 
             # run eigen and visualise
             img1 = img1.resize((WIDTH, HEIGHT), Im.BICUBIC)
             img1 = np.asarray(img1)
+            start = time.time()
             output = session.run([objVggDepth.normal, objVggDepth.depth], feed_dict={objVggDepth.imgs: [img1]})
+            print('Total Eigen Time = {}'.format(time.time() - start))
 
             # store the output data
             img1 = Im.open(img_path_1)
