@@ -1,10 +1,34 @@
-"""
+'''
 File: main.py
 Author: Nrupatunga
 Email: nrupatunga.tunga@gmail.com
 Github: https://github.com/nrupatunga
 Description: Script to run the DeMon net on mulitple batch of images
-"""
+
+Available Modules:
+------------------
+    run:
+        - This module outputs depth, normal map of dimensions 64x48 and 256x92
+
+    compute_local_planes:
+        - takes point cloud (x, y, z) and estimates the normal for each point in the point cloud
+
+    __get_point_cloud (private method):
+        - get the point cloud from depth map
+
+    __compute_point_cloud_from_depthmap:
+        - helper function for __get_point_cloud
+
+    write2pcl:
+        - write the point cloud to pcl format
+
+    vis_pointcloud:
+        - visualize point cloud using gtk library
+
+    open3dVis:
+        - Open3d visualization of point cloud
+'''
+
 import tensorflow as tf
 import numpy as np
 from PIL import Image as Im
@@ -67,6 +91,7 @@ class DemonNet(object):
 
         self.data_format = data_format
 
+        # TODO: somehow this is not working, so figure it out
         gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.333)
         session = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, gpu_options=gpu_options))
 
@@ -108,7 +133,6 @@ class DemonNet(object):
                                              result['predict_depth2'],
                                              result['predict_normal2'],
                                              result['predict_rotation'],
-                                             # result['predict_conf2'],
                                              result['predict_translation'])
 
         # show image
@@ -256,7 +280,7 @@ class DemonNet(object):
         except ImportError as err:
             print("Cannot visualize as pointcloud.", err)
 
-    def compute_point_cloud_from_depthmap(self, depth, K, R, t, normals=None, colors=None):
+    def __compute_point_cloud_from_depthmap(self, depth, K, R, t, normals=None, colors=None):
         """Creates a point cloud numpy array and optional normals and colors arrays
 
         depth: numpy.ndarray
@@ -310,7 +334,7 @@ class DemonNet(object):
         else:
             img = None
 
-        pointcloud = self.compute_point_cloud_from_depthmap(depth, K, R1, t1, None, img)
+        pointcloud = self.__compute_point_cloud_from_depthmap(depth, K, R1, t1, None, img)
 
         return pointcloud['points'], pointcloud['colors']
 
