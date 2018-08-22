@@ -1,0 +1,55 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+__init__	pycpd/affine_registration.py	/^    def __init__(self, B=None, t=None, *args, **kwargs):$/;"	m	class:affine_registration
+__init__	pycpd/deformable_registration.py	/^    def __init__(self, alpha=2, beta=2, *args, **kwargs):$/;"	m	class:deformable_registration
+__init__	pycpd/expectation_maximization_registration.py	/^    def __init__(self, X, Y, sigma2=None, max_iterations=100, tolerance=0.001, w=0, *args, **kwargs):$/;"	m	class:expectation_maximization_registration
+__init__	pycpd/jrmpc_rigid.py	/^  def __init__(self, Y, R=None, t=None, maxIterations=100, gamma=0.1, ):$/;"	m	class:jrmpc_rigid
+__init__	pycpd/rigid_registration.py	/^    def __init__(self, R=None, t=None, s=None, *args, **kwargs):$/;"	m	class:rigid_registration
+affine_registration	pycpd/affine_registration.py	/^class affine_registration(expectation_maximization_registration):$/;"	c
+deformable_registration	pycpd/deformable_registration.py	/^class deformable_registration(expectation_maximization_registration):$/;"	c
+expectation	pycpd/expectation_maximization_registration.py	/^    def expectation(self):$/;"	m	class:expectation_maximization_registration
+expectation_maximization_registration	pycpd/expectation_maximization_registration.py	/^class expectation_maximization_registration(object):$/;"	c
+get_registration_parameters	pycpd/affine_registration.py	/^    def get_registration_parameters(self):$/;"	m	class:affine_registration
+get_registration_parameters	pycpd/deformable_registration.py	/^    def get_registration_parameters(self):$/;"	m	class:deformable_registration
+get_registration_parameters	pycpd/expectation_maximization_registration.py	/^    def get_registration_parameters(self):$/;"	m	class:expectation_maximization_registration
+get_registration_parameters	pycpd/rigid_registration.py	/^    def get_registration_parameters(self):$/;"	m	class:rigid_registration
+initializeGMMMeans	pycpd/jrmpc_rigid.py	/^  def initializeGMMMeans(self):$/;"	m	class:jrmpc_rigid
+initialize_sigma2	pycpd/expectation_maximization_registration.py	/^def initialize_sigma2(X, Y):$/;"	f
+iterate	pycpd/expectation_maximization_registration.py	/^    def iterate(self):$/;"	m	class:expectation_maximization_registration
+jrmpc_rigid	pycpd/jrmpc_rigid.py	/^class jrmpc_rigid(object):$/;"	c
+main	examples/bunny_rigid_3D.py	/^def main():$/;"	f
+main	examples/fish_affine_2D.py	/^def main():$/;"	f
+main	examples/fish_affine_3D.py	/^def main():$/;"	f
+main	examples/fish_deformable_2D.py	/^def main():$/;"	f
+main	examples/fish_deformable_3D.py	/^def main():$/;"	f
+main	examples/fish_jrmpc_2D.py	/^def main():$/;"	f
+main	examples/fish_rigid_2D.py	/^def main():$/;"	f
+main	examples/fish_rigid_3D.py	/^def main():$/;"	f
+make_kernel	pycpd/deformable_registration.py	/^def make_kernel(Y, beta):$/;"	f
+maximization	pycpd/expectation_maximization_registration.py	/^    def maximization(self):$/;"	m	class:expectation_maximization_registration
+print_self	pycpd/jrmpc_rigid.py	/^  def print_self(self):$/;"	m	class:jrmpc_rigid
+readme	setup.py	/^def readme():$/;"	f
+register	pycpd/expectation_maximization_registration.py	/^    def register(self, callback=lambda **kwargs: None):$/;"	m	class:expectation_maximization_registration
+rigid_registration	pycpd/rigid_registration.py	/^class rigid_registration(expectation_maximization_registration):$/;"	c
+test_2D	testing/rigid_test.py	/^def test_2D():$/;"	f
+transform_point_cloud	pycpd/affine_registration.py	/^    def transform_point_cloud(self, Y=None):$/;"	m	class:affine_registration
+transform_point_cloud	pycpd/deformable_registration.py	/^    def transform_point_cloud(self, Y=None):$/;"	m	class:deformable_registration
+transform_point_cloud	pycpd/rigid_registration.py	/^    def transform_point_cloud(self, Y=None):$/;"	m	class:rigid_registration
+update_transform	pycpd/affine_registration.py	/^    def update_transform(self):$/;"	m	class:affine_registration
+update_transform	pycpd/deformable_registration.py	/^    def update_transform(self):$/;"	m	class:deformable_registration
+update_transform	pycpd/rigid_registration.py	/^    def update_transform(self):$/;"	m	class:rigid_registration
+update_variance	pycpd/affine_registration.py	/^    def update_variance(self):$/;"	m	class:affine_registration
+update_variance	pycpd/deformable_registration.py	/^    def update_variance(self):$/;"	m	class:deformable_registration
+update_variance	pycpd/rigid_registration.py	/^    def update_variance(self):$/;"	m	class:rigid_registration
+visualize	examples/bunny_rigid_3D.py	/^def visualize(iteration, error, X, Y, ax):$/;"	f
+visualize	examples/fish_affine_2D.py	/^def visualize(iteration, error, X, Y, ax):$/;"	f
+visualize	examples/fish_affine_3D.py	/^def visualize(iteration, error, X, Y, ax):$/;"	f
+visualize	examples/fish_deformable_2D.py	/^def visualize(iteration, error, X, Y, ax):$/;"	f
+visualize	examples/fish_deformable_3D.py	/^def visualize(iteration, error, X, Y, ax):$/;"	f
+visualize	examples/fish_jrmpc_2D.py	/^def visualize(iteration, error, X, Y, ax):$/;"	f
+visualize	examples/fish_rigid_2D.py	/^def visualize(iteration, error, X, Y, ax):$/;"	f
+visualize	examples/fish_rigid_3D.py	/^def visualize(iteration, error, X, Y, ax):$/;"	f
