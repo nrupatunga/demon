@@ -31,6 +31,7 @@ Available Modules:
 
 import tensorflow as tf
 import numpy as np
+import numpy.linalg as LA
 from PIL import Image as Im
 import os
 import cv2
@@ -41,11 +42,14 @@ from depthmotionnet.networks_original import BootstrapNet, IterativeNet, Refinem
 from open3d import PointCloud, Vector3dVector, draw_geometries
 from camera_params import (fx, fy, cx, cy, relDepthThresh)
 import pyximport
+import pickle
+from nyu.nyu import get_room_directions
+from nyu.helper import indices as find
 pyximport.install()
 
 examples_dir = pathmagic.examples_dir
 weights_dir = os.path.join(examples_dir, '..', 'weights')
-sys.path.insert(0, '/home/nrupatunga/2018/demon/python/depthmotionnet/')
+sys.path.insert(0, os.path.abspath('../python/depthmotionnet/'))
 
 
 def prepare_input_data(img1, img2, data_format):
@@ -394,6 +398,36 @@ class DemonNet(object):
         pcd.colors = Vector3dVector(color / 255.)
         pcd.normals = Vector3dVector(normals)
         draw_geometries([pcd])
+ 
+    def filter_norm_room(self, data):
+        """Filters the normals based on the 3 room coordinates
+
+        Args:
+            data: dict containing input, depth, normal
+
+        """
+        normals = data['normal']
+        normals = np.squeeze(normals, axis=0).transpose((1, 2, 0))
+        normals = normals.reshape((-1, 3))
+        norms = LA.norm(normals, axis=1)
+        normals = (normals.T / norms).T
+        room = np.asarray(get_room_directions(normals))
+        idx = set()
+        for direction in room:
+            dist = abs(np.matmul(direction, normals.T))
+            idx.update(find(dist, lambda x: x > 0.99))
+        tot = set(range(normals.shape[0]))
+        idx = tot - idx
+        idx = list(sorted(idx))
+        # pdb.set_trace()
+        for index in idx:
+            row = index // 64
+            col = index % 64
+            # data['image'][0, :, row, col] = [255, 255, 255]
+            data['normal'][0, :, row, col] = [0, 0, 0]
+        
+        return data
+        
 
 
 if __name__ == "__main__":
@@ -406,8 +440,17 @@ if __name__ == "__main__":
             img_path_1, img_path_2 = line.strip().split()
             img1 = Im.open(img_path_1)
             img2 = Im.open(img_path_2)
-            out_64_48, out_256_192 = objD.run(img1, img2)
+            if os.path.exists('out_64_48.pkl'):
+                with open('out_64_48.pkl', 'rb') as fpkl:
+                    out_64_48 = pickle.load(fpkl)
+            else:
+                out_64_48, out_256_192 = objD.run(img1, img2)
+                with open('out_64_48.pkl', 'wb') as fpkl:
+                    pickle.dump(out_64_48, fpkl)
+
             # objD.gtk3dVis()
-            objD.open3dVis(out_64_48)
+            #objD.open3dVis(out_64_48)
+            out_64_48_denoised = objD.filter_norm_room(out_64_48)
+            #objD.open3dVis(out_64_48_denoised)
             # objD.open3dVis(out_256_192)
-            # objD.write2pcl(out_64_48)
+            objD.write2pcl(out_64_48)
