@@ -31,6 +31,7 @@ Available Modules:
 
 import tensorflow as tf
 import numpy as np
+import numpy.linalg as LA
 from PIL import Image as Im
 import os
 import cv2
@@ -41,11 +42,14 @@ from depthmotionnet.networks_original import BootstrapNet, IterativeNet, Refinem
 from open3d import PointCloud, Vector3dVector, draw_geometries
 from camera_params import (fx, fy, cx, cy, relDepthThresh)
 import pyximport
+import pickle
+from nyu.nyu import get_room_directions
+from nyu.helper import indices as find
 pyximport.install()
 
 examples_dir = pathmagic.examples_dir
 weights_dir = os.path.join(examples_dir, '..', 'weights')
-sys.path.insert(0, '/home/nrupatunga/2018/demon/python/depthmotionnet/')
+sys.path.insert(0, os.path.abspath('../python/depthmotionnet/'))
 
 
 def prepare_input_data(img1, img2, data_format):
@@ -333,7 +337,6 @@ class DemonNet(object):
             img = ((image + 0.5) * 255).astype(np.uint8)
         else:
             img = None
-
         pointcloud = self.__compute_point_cloud_from_depthmap(depth, K, R1, t1, None, img)
 
         return pointcloud['points'], pointcloud['colors']
@@ -348,28 +351,37 @@ class DemonNet(object):
         """
 
         depth = data['depth'][0, 0]
-        xyz = self.get_point_cloud(depth)
-        color = data['image'].transpose().reshape((-1, 3))
+        image = np.squeeze(data['image'], axis=0)
+        xyz, _ = self.get_point_cloud(depth, image)
+        color = np.squeeze(data['image'], axis=0).transpose((1, 2, 0)).reshape((-1, 3))
 
         color_pack = []
         for rgb in color:
             r, g, b = rgb.tolist()
             pack_rgb = (r << 16) + (g << 8) + b
             color_pack.append(pack_rgb)
+        color_pack = np.array(color_pack, dtype=np.int32)
 
-        pcl_pc = np.zeros((depth.shape[-1] * depth.shape[-2], 4))
+        pcl_pc = np.zeros((depth.shape[-1] * depth.shape[-2], 4), dtype=object)
         pcl_pc[:, :-1] = xyz
         pcl_pc[:, -1] = color_pack
-        pcl_file = 'pcd.ply'
-        np.savetxt(pcl_file, pcl_pc,  fmt='%.7f')
+        pcl_file = 'pcl.pcd'
 
-        with open(pcl_file, 'r+') as dest, open('./pcl_header.txt', 'r') as src:
-            content = dest.read()
-            dest.seek(0)
-            dest.truncate()
-            for line in src:
-                dest.write(line)
-            dest.write(content)
+        with open(pcl_file, 'w') as dest:
+            dest.write("# PCD v.7 - Point Cloud Data file format\n")
+            dest.write("VERSION .7\n")
+            dest.write("FIELDS x y z rgb\n")
+            dest.write("SIZE 4 4 4 4\n")
+            dest.write("TYPE F F F U\n")
+            dest.write("COUNT 1 1 1 1\n")
+            dest.write("WIDTH " + str(image.shape[-1]) + "\n")
+            dest.write("HEIGHT " + str(image.shape[-2]) + "\n")
+            dest.write("VIEWPOINT 0 0 0 1 0 0 0\n")
+            dest.write("POINTS " + str(image.shape[-1]*image.shape[-2]) + "\n")
+            dest.write("DATA ascii\n")
+            for line in pcl_pc:
+                dest.write(' '.join(line.astype(str)))
+                dest.write("\n")
 
     def open3dVis(self, data):
         """Visualize through open3d
@@ -395,6 +407,35 @@ class DemonNet(object):
         pcd.normals = Vector3dVector(normals)
         draw_geometries([pcd])
 
+    def filter_norm_room(self, data):
+        """Filters the normals based on the 3 room coordinates
+
+        Args:
+            data: dict containing input, depth, normal
+
+        """
+        normals = data['normal']
+        normals = np.squeeze(normals, axis=0).transpose((1, 2, 0))
+        normals = normals.reshape((-1, 3))
+        norms = LA.norm(normals, axis=1)
+        normals = (normals.T / norms).T
+        room = np.asarray(get_room_directions(normals))
+        idx = set()
+        for direction in room:
+            dist = abs(np.matmul(direction, normals.T))
+            idx.update(find(dist, lambda x: x > 0.99))
+        tot = set(range(normals.shape[0]))
+        idx = tot - idx
+        idx = list(sorted(idx))
+        # pdb.set_trace()
+        for index in idx:
+            row = index // 64
+            col = index % 64
+            # data['image'][0, :, row, col] = [255, 255, 255]
+            data['normal'][0, :, row, col] = [0, 0, 0]
+
+        return data
+
 
 if __name__ == "__main__":
 
@@ -406,8 +447,17 @@ if __name__ == "__main__":
             img_path_1, img_path_2 = line.strip().split()
             img1 = Im.open(img_path_1)
             img2 = Im.open(img_path_2)
-            out_64_48, out_256_192 = objD.run(img1, img2)
+            if os.path.exists('out_64_48.pkl'):
+                with open('out_64_48.pkl', 'rb') as fpkl:
+                    out_64_48 = pickle.load(fpkl)
+            else:
+                out_64_48, out_256_192 = objD.run(img1, img2)
+                with open('out_64_48.pkl', 'wb') as fpkl:
+                    pickle.dump(out_64_48, fpkl)
+
             # objD.gtk3dVis()
             objD.open3dVis(out_64_48)
+            # out_64_48_denoised = objD.filter_norm_room(out_64_48)
+            # objD.open3dVis(out_64_48_denoised)
             # objD.open3dVis(out_256_192)
-            # objD.write2pcl(out_64_48)
+            objD.write2pcl(out_64_48)
