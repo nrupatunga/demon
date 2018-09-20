@@ -8,6 +8,7 @@ Description: mean shift algorithms
 
 import numpy as np
 from helper import indices as find
+import config
 
 def meanshift_dist2(x1, x2):
     """distance metrics
@@ -97,6 +98,9 @@ def mean_shift(data, num_trails, h, epsilon, dist2):
     num_trails = min(num_trails, N)
     rsp = np.random.permutation(N)
     rsp = rsp[0:num_trails]
+    if config.TEST:
+        rsp  = np.load('test_data/rsp.npy')
+    
     eps2 = epsilon * epsilon
 
     mode = np.zeros((d, num_trails))

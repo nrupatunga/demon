@@ -18,6 +18,7 @@ UPLOAD_FOLDER = '/tmp/caffe_demos_uploads'
 
 # Enable/ Disable debug codes
 DEBUG = False
+TEST = True
 
 # Number of DL processes
 NUMBER_OF_PROCESS = 3
