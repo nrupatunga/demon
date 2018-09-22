@@ -18,6 +18,7 @@
 import tensorflow as tf
 import lmbspecialops as sops
 import numpy as np
+
  
 def convert_NCHW_to_NHWC(inp):
     """Convert the tensor from caffe format NCHW into tensorflow format NHWC

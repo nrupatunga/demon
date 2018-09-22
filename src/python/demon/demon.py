@@ -29,27 +29,25 @@ Available Modules:
         - helper function for get_point_cloud
 '''
 
-import tensorflow as tf
-import numpy as np
-import numpy.linalg as LA
-from PIL import Image as Im
 import os
 import cv2
-import sys
-import pathmagic
-from helper import indices as find
-from depthmotionnet.networks_original import BootstrapNet, IterativeNet, RefinementNet
-from open3d import PointCloud, Vector3dVector, draw_geometries
-from camera_params import (fx, fy, cx, cy, relDepthThresh)
+import pathconfig  # noqa
 import pyximport
 import pickle
-from nyu.nyu import get_room_directions
-from nyu.helper import indices as find
+import numpy as np
+import tensorflow as tf
+import numpy.linalg as LA
+from PIL import Image as Im
+from nyu_utils.helper import indices as find
+from nyu_utils.nyu import get_room_directions
+from demon_params import (fx, fy, cx, cy, relDepthThresh)
+from open3d import PointCloud, Vector3dVector, draw_geometries
+from depthmotionnet.networks_original import BootstrapNet, IterativeNet, RefinementNet
 pyximport.install()
 
-examples_dir = pathmagic.examples_dir
-weights_dir = os.path.join(examples_dir, '..', 'weights')
-sys.path.insert(0, os.path.abspath('../python/depthmotionnet/'))
+# Directory settings
+demon_dir = os.path.dirname(os.path.realpath(__file__))
+weights_dir = os.path.join(demon_dir, 'weights')
 
 
 def prepare_input_data(img1, img2, data_format):
@@ -83,10 +81,18 @@ def prepare_input_data(img1, img2, data_format):
 
 
 class DemonNet(object):
-    """class for Demon network"""
+    """class for Demon network
 
-    def __init__(self, session):
-        """initialize the network here """
+        TODO: Making CPU mode functional
+    """
+
+    def __init__(self, session, scale=1):
+        """initialize the network here
+
+        Args:
+            session: tf session
+            scale: scale for camera params
+        """
 
         if tf.test.is_gpu_available(True):
             data_format = 'channels_first'
@@ -112,7 +118,6 @@ class DemonNet(object):
         saver.restore(session, os.path.join(weights_dir, 'demon_original'))
 
         # camera params
-        scale = 2.5
         self.fx = fx / scale
         self.fy = fy / scale
         self.cx = cx / scale
@@ -138,16 +143,6 @@ class DemonNet(object):
                                              result['predict_normal2'],
                                              result['predict_rotation'],
                                              result['predict_translation'])
-
-        # show image
-        # __import__('pdb').set_trace()
-        # plt.subplot(2, 2, 1)
-        # plt.imshow(result['predict_conf2'][0, 0, :, :], cmap='jet')
-        # plt.subplot(2, 2, 2)
-        # plt.imshow(result['predict_conf2'][0, 1, :, :], cmap='jet')
-        # plt.subplot(2, 2, 3)
-        # plt.imshow(result['predict_depth2'][0, 0, :, :], cmap='jet')
-        # plt.show()
 
         rotation = result['predict_rotation']
         translation = result['predict_translation']
@@ -377,7 +372,7 @@ class DemonNet(object):
             dest.write("WIDTH " + str(image.shape[-1]) + "\n")
             dest.write("HEIGHT " + str(image.shape[-2]) + "\n")
             dest.write("VIEWPOINT 0 0 0 1 0 0 0\n")
-            dest.write("POINTS " + str(image.shape[-1]*image.shape[-2]) + "\n")
+            dest.write("POINTS " + str(image.shape[-1] * image.shape[-2]) + "\n")
             dest.write("DATA ascii\n")
             for line in pcl_pc:
                 dest.write(' '.join(line.astype(str)))
@@ -420,18 +415,18 @@ class DemonNet(object):
         norms = LA.norm(normals, axis=1)
         normals = (normals.T / norms).T
         room = np.asarray(get_room_directions(normals))
+
         idx = set()
         for direction in room:
             dist = abs(np.matmul(direction, normals.T))
             idx.update(find(dist, lambda x: x > 0.99))
+
         tot = set(range(normals.shape[0]))
         idx = tot - idx
         idx = list(sorted(idx))
-        # pdb.set_trace()
         for index in idx:
             row = index // 64
             col = index % 64
-            # data['image'][0, :, row, col] = [255, 255, 255]
             data['normal'][0, :, row, col] = [0, 0, 0]
 
         return data
@@ -441,8 +436,8 @@ if __name__ == "__main__":
 
     gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.333)
     session = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, gpu_options=gpu_options))
-    objD = DemonNet(session)
-    with open('./input.txt', 'r') as f:
+    objD = DemonNet(session, 2.5)
+    with open('input.txt', 'r') as f:
         for line in f:
             img_path_1, img_path_2 = line.strip().split()
             img1 = Im.open(img_path_1)

@@ -10,9 +10,11 @@ Description: Some of helper functions
 def indices(a, func):
     """Implementaion of find() like function in matlab
 
-    :a: TODO
-    :func: TODO
-    :returns: TODO
+    Args:
+        a: input array
+        func: input function that needs to be satisfied
 
+    Returns:
+        returns the indices satisfying func
     """
     return [i for (i, val) in enumerate(a) if func(val)]

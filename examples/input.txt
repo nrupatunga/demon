@@ -1,9 +1,0 @@
-/home/nrupatunga/2018/demon/examples/kf_0.png /home/nrupatunga/2018/demon/examples/kf_1.png
-/home/nrupatunga/2018/demon/examples/kf_1.png /home/nrupatunga/2018/demon/examples/kf_3.png
-/home/nrupatunga/2018/demon/examples/kf_4.png /home/nrupatunga/2018/demon/examples/kf_5.png
-/home/nrupatunga/2018/demon/examples/test/023.png /home/nrupatunga/2018/demon/examples/test/104.png
-/home/nrupatunga/2018/demon/examples/sculpture1.png /home/nrupatunga/2018/demon/examples/sculpture2.png
-/home/nrupatunga/Pictures/office/1/1.jpeg /home/nrupatunga/Pictures/office/1/2.jpeg
-/media/nrupatunga/data/datasets/Whodata-data/VideoRecordApp-HeightEstimation/5/Images/178.png /media/nrupatunga/data/datasets/Whodata-data/VideoRecordApp-HeightEstimation/5/Images/190.png
-/home/nrupatunga/Pictures/office/2/1.jpeg /home/nrupatunga/Pictures/office/2/2.jpeg
-/home/nrupatunga/2018/demon/examples/20170329_174138.jpg /home/nrupatunga/2018/demon/examples/20170329_174152.jpg

@@ -1,4 +1,5 @@
-""" File: pointcloud.py
+"""
+File: pointcloud.py
 Author: Nrupatunga
 Email: nrupatunga.tunga@gmail.com
 Github: https://github.com/nrupatunga
@@ -33,7 +34,7 @@ class PointCloud3d(object):
 
     """Utility class for point cloud generation and processing"""
 
-    def __init__(self, sess=None):
+    def __init__(self, sess=None, depth_network_type='demon'):
         """initialization
 
         Args:
@@ -45,9 +46,13 @@ class PointCloud3d(object):
             sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, gpu_options=gpu_options))
 
         self.sess = sess
-        self.objD = DemonNet(sess)
         self.pointclouds = {}
         self.count = 0
+
+        if depth_network_type is 'demon':
+            self.objD = DemonNet(sess)
+        else:
+            pass
 
     def generate_point_cloud(self, img1, img2, label=None):
         """point cloud generation
@@ -90,8 +95,12 @@ class PointCloud3d(object):
             pc2: point cloud 2
 
         """
+
+        # images are stores as list in point cloud structure; using the
+        # same to avoid redundancy
         img1 = pc1['colors'].reshape((self.H, self.W, 3))
         img2 = pc2['colors'].reshape((self.H, self.W, 3))
+
         gray_1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
         gray_2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
 
@@ -120,6 +129,10 @@ class PointCloud3d(object):
             pc1_match.append(pc1['points'][round(y1) * self.W + round(x1)].tolist())
             pc2_match.append(pc2['points'][round(y2) * self.W + round(x2)].tolist())
 
+        img3 = np.copy(img2)
+        img3 = cv2.drawMatchesKnn(gray_1, kp1, gray_2, kp2, good, img3, flags=2)
+        plt.imshow(img3)
+        plt.show()
         return pc1_match, pc2_match,
 
     def find_transform(self, pc1, pc2):
@@ -165,7 +178,8 @@ class PointCloud3d(object):
         colors = np.concatenate((pc1['colors'], pc2['colors']), axis=0)
 
         pcd.points = Vector3dVector(np.asarray(points))
-        pcd.colors = Vector3dVector(np.asarray(colors) / 255.)
+        # pcd.colors = Vector3dVector(np.asarray(colors) / 255.)
+        pcd.colors = Vector3dVector(np.asarray(colors))
         draw_geometries([pcd])
 
 
@@ -175,7 +189,7 @@ if __name__ == "__main__":
     session = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, gpu_options=gpu_options))
     objPC = PointCloud3d(sess=session)
 
-    with open('./input.txt', 'r') as f:
+    with open('input.txt', 'r') as f:
         for line in f:
             img_path_1, img_path_2 = line.strip().split()
             img1 = Im.open(img_path_1)

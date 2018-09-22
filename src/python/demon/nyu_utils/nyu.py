@@ -7,18 +7,17 @@ Description: python class for processing nyu dataset
 """
 
 import numpy as np
-from nyu.helper import indices as find
-from nyu.mean_shift import (mean_shift, meanshift_dist2)
+from helper import indices as find
+from mean_shift import (mean_shift, meanshift_dist2)
 
 
 def get_surface_3d(norms3d, ntrails=100):
     """find surfaces
-
     """
 
     h = 0.01
     epsilon = 0.001
-    thresh = 1 + 50/77.
+    thresh = 1 + 50 / 77.
     mode, score = mean_shift(norms3d, ntrails, h, epsilon, meanshift_dist2)
     idx = find(score, lambda x: x > thresh)
     mode = mode[:, idx]
