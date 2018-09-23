@@ -7,13 +7,12 @@ Description: Utility for pointcloud generation and processing
 """
 
 import tensorflow as tf
-from demon import DemonNet
+from demon.demon import DemonNet
 from PIL import Image as Im
 import numpy as np
 import cv2
-import pathmagic  # noqa
 # from affine_registration import affine_registration
-from rigid_registration import rigid_registration
+from pycpd.pycpd.rigid_registration import rigid_registration
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D  # noqa
 from functools import partial
@@ -178,8 +177,8 @@ class PointCloud3d(object):
         colors = np.concatenate((pc1['colors'], pc2['colors']), axis=0)
 
         pcd.points = Vector3dVector(np.asarray(points))
-        # pcd.colors = Vector3dVector(np.asarray(colors) / 255.)
-        pcd.colors = Vector3dVector(np.asarray(colors))
+        pcd.colors = Vector3dVector(np.asarray(colors) / 255.)
+        # pcd.colors = Vector3dVector(np.asarray(colors))
         draw_geometries([pcd])
 
 
