@@ -31,20 +31,31 @@ class SceneReconstruction(object):
     """Class which provides utilities to reconstruct 3d from set of
     images and information from ORB-slam """
 
-    def __init__(self, sess, input_dir):
+    def __init__(self, sess, input_dir, width=64, height=48):
         """Initialize the input parameters
 
         Args:
             sess: tensorflow session
+            input_dir: input to the folder containing images and SLAM
+            data
+            width: width of the depth map
+            height: height of the depth map
         """
         self.objPC = PointCloud3d(sess=session)
         self.objD = self.objPC.objD
-        self.process_data(input_dir)
+        self._process_data(input_dir)
 
         # data structures to store different intermediate data
         self.out = OrderedDict()
+        self.map_struct = OrderedDict()
+        self.R_t_s = OrderedDict()
 
-    def process_data(self, input_dir):
+        # In order to set these, please check the width and height of
+        # the depth map
+        self.W = width
+        self.H = height
+
+    def _process_data(self, input_dir):
         """Process the data in the input directory and set the required
         parameters
 
@@ -72,8 +83,9 @@ class SceneReconstruction(object):
         """
 
         # step-1 construct the point cloud for all the images
-        self.get_pointcloud_in_batch(self.rgb_folder)
-        self.find_pointcloud_transform(self.out)
+        self._get_pointclouds(self.rgb_folder)
+        self._find_pointcloud_transforms(self.out)
+        self._merge_point_clouds(self.R_t_s)
 
     def _repeating_elements(self, arr):
         """Identify the repeating elements in an array
@@ -151,7 +163,8 @@ class SceneReconstruction(object):
         kp_1 = mp1['kp'][idx_1]
         kp_2 = mp2['kp'][idx_2]
 
-        self._draw_keypoints(mp1['image'], kp_1, mp2['image'], kp_2)
+        if debug:
+            self._draw_keypoints(mp1['image'], kp_1, mp2['image'], kp_2)
 
         return kp_1, kp_2
 
@@ -168,7 +181,6 @@ class SceneReconstruction(object):
         img_files = self.img_files[:-1]  # last file does not have a point cloud so we do not use it
         kp_files = self.kp_files[:-1]
 
-        map_struct = OrderedDict()
         for i, (img_file, kp_file) in enumerate(zip(img_files, kp_files)):
             img = cv2.imread(img_file)
             kp_id = np.loadtxt(kp_file)
@@ -191,11 +203,9 @@ class SceneReconstruction(object):
             d['xyz'] = xyz  # xyz mappoints
 
             key = os.path.basename(img_file)
-            map_struct[key] = d
+            self.map_struct[key] = d
 
-        self.map_struct = map_struct
-
-    def get_pointcloud_in_batch(self, input_dir, file_ext='png'):
+    def _get_pointclouds(self, input_dir, file_ext='png'):
         """Calculate the depth of images
 
         Args:
@@ -219,7 +229,7 @@ class SceneReconstruction(object):
             out_64_48['pointcloud'] = pcd
             self.out[key] = out_64_48
 
-    def find_pointcloud_transform(self, mp, scale_factor=1):
+    def _find_pointcloud_transforms(self, mp, scale_factor=1):
         """find the transformation between consecutive point clouds
 
         Args:
@@ -228,6 +238,7 @@ class SceneReconstruction(object):
         keys = self.map_struct.keys()
         keys = [k for k in keys]
 
+        __import__('pdb').set_trace()
         for i, (k1, k2) in enumerate(zip(keys[:-1], keys[1:])):
 
             mp1 = self.map_struct[k1]
@@ -237,6 +248,23 @@ class SceneReconstruction(object):
 
             kp_1 = np.round(kp_1 / scale_factor).astype(int)
             kp_2 = np.round(kp_2 / scale_factor).astype(int)
+
+            pc1 = np.array(self.out[k1]['pointcloud'].points)
+            pc2 = np.array(self.out[k2]['pointcloud'].points)
+
+            pc1_match = pc1[kp_1[:, 1] * self.W + kp_1[:, 0]]
+            pc2_match = pc2[kp_2[:, 1] * self.W + kp_2[:, 0]]
+
+            self.R_t_s[k2] = self.objPC.find_transform(pc1_match.tolist(), pc2_match.tolist())
+
+    def _merge_point_clouds(self, R_t_s):
+        """Merge all the point clouds
+
+        Args:
+            R_t_s: rigid transformation between each point clouds
+
+        """
+        pass
 
 
 if __name__ == "__main__":
