@@ -92,6 +92,43 @@ class SceneReconstruction(object):
         else:
             return [item for item, count in Counter(arr).iteritems() if count > 1]
 
+    def _draw_keypoints(self, img1, kp1, img2, kp2):
+        """Draw keppoint matches
+
+        Args:
+            img1: image 1
+            kp1: keypoints on image 1
+            img2: image 2
+            kp2: keypoints on image 2
+
+        """
+        if len(img1.shape) == 3:
+            new_shape = (max(img1.shape[0], img2.shape[0]), img1.shape[1] + img2.shape[1], img1.shape[2])
+        elif len(img1.shape) == 2:
+            new_shape = (max(img1.shape[0], img2.shape[0]), img1.shape[1] + img2.shape[1])
+        new_img = np.zeros(new_shape, type(img1.flat[0]))
+        # Place images onto the new image.
+        new_img[0:img1.shape[0], 0:img1.shape[1]] = img1
+        new_img[0:img2.shape[0], img1.shape[1]:img1.shape[1] + img2.shape[1]] = img2
+
+        kp_len = len(kp1)
+        thickness = 2
+        r = 5
+        for m in range(kp_len):
+            # Generate random color for RGB/BGR and grayscale images as needed.
+            # c = np.random.randint(0, 256, 3) if len(img1.shape) == 3 else np.random.randint(0, 256)
+            c = (0, 255, 0)
+            # So the keypoint locs are stored as a tuple of floats.  cv2.line(), like most other things,
+            # wants locs as a tuple of ints.
+            end1 = tuple(kp1[m])
+            end2 = tuple(kp2[m] + np.array([img1.shape[1], 0]))
+            cv2.line(new_img, end1, end2, c, thickness)
+            cv2.circle(new_img, end1, r, c, thickness)
+            cv2.circle(new_img, end2, r, c, thickness)
+
+        cv2.imshow('output', new_img)
+        cv2.waitKey(0)
+
     def _find_matching_kp(self, mp1, mp2, debug=False):
         """find the matching keypoints between two mappoint struct
 
@@ -114,7 +151,7 @@ class SceneReconstruction(object):
         kp_1 = mp1['kp'][idx_1]
         kp_2 = mp2['kp'][idx_2]
 
-        # draw_keypoints(mp1['image'], kp_1, mp2['image'], kp_2)
+        self._draw_keypoints(mp1['image'], kp_1, mp2['image'], kp_2)
 
         return kp_1, kp_2
 
@@ -188,9 +225,9 @@ class SceneReconstruction(object):
         Args:
             mp: map point struct
         """
-
-        __import__('pdb').set_trace()
         keys = self.map_struct.keys()
+        keys = [k for k in keys]
+
         for i, (k1, k2) in enumerate(zip(keys[:-1], keys[1:])):
 
             mp1 = self.map_struct[k1]

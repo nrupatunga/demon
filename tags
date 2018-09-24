@@ -7931,6 +7931,7 @@ _compute_depth_ratios	src/python/pointcloud/demon/depthmotionnet/dataset_tools/v
 _compute_flow	src/python/pointcloud/demon/depthmotionnet/dataset_tools/view_tools_cython.pyx	/^cdef _compute_flow( $/;"	f
 _compute_point_cloud_from_depthmap	src/python/pointcloud/demon/depthmotionnet/vis_cython.pyx	/^cdef _compute_point_cloud_from_depthmap($/;"	f
 _compute_visible_points_mask	src/python/pointcloud/demon/depthmotionnet/dataset_tools/view_tools_cython.pyx	/^cdef _compute_visible_points_mask( $/;"	f
+_draw_keypoints	src/python/reconstruction.py	/^    def _draw_keypoints(self, img1, kp1, img2, kp2):$/;"	m	class:SceneReconstruction
 _fileno	src/python/pointcloud/demon/lmbspecialops/build/lz4/src/lz4/programs/lz4cli.c	73;"	d	file:
 _find_matching_kp	src/python/reconstruction.py	/^    def _find_matching_kp(self, mp1, mp2, debug=False):$/;"	m	class:SceneReconstruction
 _goslice_	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/swig/libwebp_go_wrap.c	/^typedef struct { void* array; intgo len; intgo cap; } _goslice_;$/;"	t	typeref:struct:__anon148	file:
