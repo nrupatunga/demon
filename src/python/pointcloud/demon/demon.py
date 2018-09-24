@@ -16,7 +16,7 @@ Available Modules:
     gtk3dVis:
         - visualize point cloud using gtk library
 
-    open3dVis:
+    open3dPcd:
         - Open3d visualization of point cloud
 
     __compute_local_planes:
@@ -155,7 +155,8 @@ class DemonNet(object):
         img = np.transpose(img, [2, 0, 1])
 
         # store the outputs
-        out_64_48 = {}
+        from collections import OrderedDict
+        out_64_48 = OrderedDict()
         out_64_48['image'] = img[np.newaxis, ...]
         out_64_48['rotation'] = rotation
         out_64_48['translation'] = translation
@@ -164,7 +165,7 @@ class DemonNet(object):
         out_64_48['conf'] = result['predict_conf2']
 
         result = self.refine_net.eval(input_data['image1'], result['predict_depth2'])
-        out_256_192 = {}
+        out_256_192 = OrderedDict()
         image = input_data['image1']
         img = ((image + 0.5) * 255).astype(np.uint8)
         out_256_192['image'] = img
@@ -378,7 +379,7 @@ class DemonNet(object):
                 dest.write(' '.join(line.astype(str)))
                 dest.write("\n")
 
-    def open3dVis(self, data):
+    def open3dPcd(self, data, vis=False):
         """Visualize through open3d
 
         Args:
@@ -400,7 +401,11 @@ class DemonNet(object):
         pcd.points = Vector3dVector(xyz)
         pcd.colors = Vector3dVector(color / 255.)
         pcd.normals = Vector3dVector(normals)
-        draw_geometries([pcd])
+
+        if vis:
+            draw_geometries([pcd])
+
+        return pcd
 
     def filter_norm_room(self, data):
         """Filters the normals based on the 3 room coordinates
@@ -451,8 +456,8 @@ if __name__ == "__main__":
                     pickle.dump(out_64_48, fpkl)
 
             # objD.gtk3dVis()
-            objD.open3dVis(out_64_48)
+            objD.open3dPcd(out_64_48)
             # out_64_48_denoised = objD.filter_norm_room(out_64_48)
-            # objD.open3dVis(out_64_48_denoised)
-            # objD.open3dVis(out_256_192)
+            # objD.open3dPcd(out_64_48_denoised)
+            # objD.open3dPcd(out_256_192)
             objD.write2pcl(out_64_48)

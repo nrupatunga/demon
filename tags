@@ -7932,6 +7932,7 @@ _compute_flow	src/python/pointcloud/demon/depthmotionnet/dataset_tools/view_tool
 _compute_point_cloud_from_depthmap	src/python/pointcloud/demon/depthmotionnet/vis_cython.pyx	/^cdef _compute_point_cloud_from_depthmap($/;"	f
 _compute_visible_points_mask	src/python/pointcloud/demon/depthmotionnet/dataset_tools/view_tools_cython.pyx	/^cdef _compute_visible_points_mask( $/;"	f
 _fileno	src/python/pointcloud/demon/lmbspecialops/build/lz4/src/lz4/programs/lz4cli.c	73;"	d	file:
+_find_matching_kp	src/python/reconstruction.py	/^    def _find_matching_kp(self, mp1, mp2, debug=False):$/;"	m	class:SceneReconstruction
 _goslice_	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/swig/libwebp_go_wrap.c	/^typedef struct { void* array; intgo len; intgo cap; } _goslice_;$/;"	t	typeref:struct:__anon148	file:
 _gostring_	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/swig/libwebp_go_wrap.c	/^typedef struct { char *p; intgo n; } _gostring_;$/;"	t	typeref:struct:__anon147	file:
 _isatty	src/python/pointcloud/demon/lmbspecialops/build/lz4/src/lz4/programs/lz4cli.c	72;"	d	file:
@@ -7946,9 +7947,11 @@ _numpy_to_Vector3	src/python/pointcloud/demon/depthmotionnet/evaluation/metrics.
 _object	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/swig/libwebp.py	/^    class _object : pass$/;"	c
 _predict_depthnormal_caffe_padding	src/python/pointcloud/demon/depthmotionnet/blocks_original.py	/^def _predict_depthnormal_caffe_padding(inp, predicted_scale=None, predict_normals=True, intermediate_num_outputs=24, data_format='channels_first', **kwargs):$/;"	f
 _predict_flow_caffe_padding	src/python/pointcloud/demon/depthmotionnet/blocks_original.py	/^def _predict_flow_caffe_padding(inp, predict_confidence=False, **kwargs ):$/;"	f
+_process_orb_slam_data	src/python/reconstruction.py	/^    def _process_orb_slam_data(self, input_dir, img_ext='png'):$/;"	m	class:SceneReconstruction
 _readerlib_path	src/python/pointcloud/demon/depthmotionnet/datareader/__init__.py	/^    _readerlib_path = os.environ['MULTIVIH5DATAREADEROP_LIB']$/;"	v
 _readerlib_path	src/python/pointcloud/demon/depthmotionnet/datareader/__init__.py	/^    _readerlib_path = os.path.abspath(os.path.join(os.path.split(__file__)[0], '..', '..', '..', 'build','multivih5datareaderop', 'multivih5datareaderop.so'))$/;"	v
 _refine_caffe_padding	src/python/pointcloud/demon/depthmotionnet/blocks_original.py	/^def _refine_caffe_padding(inp, num_outputs, data_format, upsampled_prediction=None, features_direct=None, **kwargs):$/;"	f
+_repeating_elements	src/python/reconstruction.py	/^    def _repeating_elements(self, arr):$/;"	m	class:SceneReconstruction
 _replace_nonfinite_grad	src/python/pointcloud/demon/lmbspecialops/python/lmbspecialops.py	/^def _replace_nonfinite_grad(op, grad):$/;"	f
 _safe_unicode	src/python/common/logger.py	/^def _safe_unicode(s):$/;"	f
 _scale_invariant_gradient_grad	src/python/pointcloud/demon/lmbspecialops/python/lmbspecialops.py	/^def _scale_invariant_gradient_grad(op, grad):$/;"	f
@@ -9050,6 +9053,7 @@ config_	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/src/enc/vp
 config_	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/src/enc/vp8li_enc.h	/^  const WebPConfig* config_;      \/\/ user configuration and parameters$/;"	m	struct:__anon121
 const	src/python/pointcloud/demon/lmbspecialops/build/CMakeFiles/3.7.1/CompilerIdC/CMakeCCompilerId.c	10;"	d	file:
 const	src/python/pointcloud/demon/lmbspecialops/build/lz4/src/lz4-build/CMakeFiles/3.7.1/CompilerIdC/CMakeCCompilerId.c	10;"	d	file:
+construct_3d	src/python/reconstruction.py	/^    def construct_3d(self):$/;"	m	class:SceneReconstruction
 contentChecksumFlag	src/python/pointcloud/demon/lmbspecialops/build/lz4/src/lz4/lib/lz4frame.h	/^  LZ4F_contentChecksum_t contentChecksumFlag;   \/* noContentChecksum, contentChecksumEnabled ; 0 == default  *\/$/;"	m	struct:__anon20
 contentChecksum_t	src/python/pointcloud/demon/lmbspecialops/build/lz4/src/lz4/lib/lz4frame.h	/^typedef LZ4F_contentChecksum_t contentChecksum_t;$/;"	t
 contentSize	src/python/pointcloud/demon/lmbspecialops/build/lz4/src/lz4/lib/lz4frame.h	/^  unsigned long long     contentSize;           \/* Size of uncompressed (original) content ; 0 == unknown *\/$/;"	m	struct:__anon20
@@ -9445,6 +9449,7 @@ filters_last_cpuinfo_used	src/python/pointcloud/demon/lmbspecialops/build/webp/s
 final_output_	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/src/dec/idec_dec.c	/^  WebPDecBuffer* final_output_;  \/\/ Slow-memory output to copy to eventually.$/;"	m	struct:WebPIDecoder	file:
 findJavaFromJavaHome	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/gradlew.bat	/^:findJavaFromJavaHome$/;"	l
 find_correspondence	src/python/pointcloud/pointcloud.py	/^    def find_correspondence(self, pc1, pc2):$/;"	m	class:PointCloud3d
+find_pointcloud_transform	src/python/reconstruction.py	/^    def find_pointcloud_transform(self, mp, scale_factor=1):$/;"	m	class:SceneReconstruction
 find_transform	src/python/pointcloud/pointcloud.py	/^    def find_transform(self, pc1, pc2):$/;"	m	class:PointCloud3d
 first	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/src/enc/cost_enc.h	/^  int first;$/;"	m	struct:VP8Residual
 first_timestamp_	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/src/mux/anim_encode.c	/^  int first_timestamp_;           \/\/ Timestamp of the first frame.$/;"	m	struct:WebPAnimEncoder	file:
@@ -9764,6 +9769,7 @@ get_disto_SOURCES	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp-
 get_git_tags	src/python/pointcloud/demon/lmbspecialops/build/lz4/src/lz4/versionsTest/test-lz4-versions.py	/^def get_git_tags():$/;"	f
 get_metainfo	src/python/pointcloud/demon/depthmotionnet/evaluation/evaluate_to_xarray.py	/^def get_metainfo(data_file):$/;"	f
 get_point_cloud	src/python/pointcloud/demon/demon.py	/^    def get_point_cloud(self, inverse_depth, image=None):$/;"	m	class:DemonNet
+get_pointcloud_in_batch	src/python/reconstruction.py	/^    def get_pointcloud_in_batch(self, input_dir, file_ext='png'):$/;"	m	class:SceneReconstruction
 get_registration_parameters	src/python/pointcloud/pycpd/pycpd/affine_registration.py	/^    def get_registration_parameters(self):$/;"	m	class:affine_registration
 get_registration_parameters	src/python/pointcloud/pycpd/pycpd/deformable_registration.py	/^    def get_registration_parameters(self):$/;"	m	class:deformable_registration
 get_registration_parameters	src/python/pointcloud/pycpd/pycpd/expectation_maximization_registration.py	/^    def get_registration_parameters(self):$/;"	m	class:expectation_maximization_registration
@@ -9783,7 +9789,7 @@ glutMainLoop	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/confi
 got_null_frame_	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/src/mux/anim_encode.c	/^  int got_null_frame_;  \/\/ True if WebPAnimEncoderAdd() has already been called$/;"	m	struct:WebPAnimEncoder	file:
 gpu_options	src/python/pointcloud/demon/demon.py	/^    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.333)$/;"	v	class:DemonNet
 gpu_options	src/python/pointcloud/pointcloud.py	/^    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.333)$/;"	v	class:PointCloud3d
-gpu_options	src/python/reconstruction.py	/^    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.333)$/;"	v
+gpu_options	src/python/reconstruction.py	/^    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.333)$/;"	v	class:SceneReconstruction
 green_to_blue_	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/src/dsp/lossless.h	/^  uint8_t green_to_blue_;$/;"	m	struct:__anon89
 green_to_red_	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/src/dsp/lossless.h	/^  uint8_t green_to_red_;$/;"	m	struct:__anon89
 gtk3dVis	src/python/pointcloud/demon/demon.py	/^    def gtk3dVis(self):$/;"	m	class:DemonNet
@@ -10870,7 +10876,7 @@ nz_	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/src/enc/vp8i_e
 nz_dc_	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/src/dec/vp8i_dec.h	/^  uint8_t nz_dc_;     \/\/ non-zero DC coeff (1bit)$/;"	m	struct:__anon73
 objD	src/python/pointcloud/demon/demon.py	/^    objD = DemonNet(session, 2.5)$/;"	v	class:DemonNet
 objPC	src/python/pointcloud/pointcloud.py	/^    objPC = PointCloud3d(sess=session)$/;"	v	class:PointCloud3d
-objScene3D	src/python/reconstruction.py	/^    objScene3D = SceneReconstruction(session, parent_dir)/;"	v
+objScene3D	src/python/reconstruction.py	/^    objScene3D = SceneReconstruction(session, parent_dir)$/;"	v	class:SceneReconstruction
 offset	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/imageio/pngdec.c	/^  png_size_t offset;$/;"	m	struct:__anon57	file:
 offset	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/src/dec/webpi_dec.h	/^  size_t offset;               \/\/ offset to main data chunk (VP8 or VP8L)$/;"	m	struct:__anon81
 offset_	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/src/demux/demux.c	/^  size_t offset_;$/;"	m	struct:__anon83	file:
@@ -10895,7 +10901,7 @@ only_deltas	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/exampl
 op_md	src/python/pointcloud/demon/lmbspecialops/doc/generate_doc.py	/^    op_md = OP_DOC_TEMPLATE.safe_substitute($/;"	v
 op_name	src/python/pointcloud/demon/lmbspecialops/doc/generate_doc.py	/^    op_name = camelCase_to_spaces(op.name)$/;"	v
 opaque	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/src/dec/vp8_dec.h	/^  void* opaque;              \/\/ user data$/;"	m	struct:VP8Io
-open3dVis	src/python/pointcloud/demon/demon.py	/^    def open3dVis(self, data):$/;"	m	class:DemonNet
+open3dPcd	src/python/pointcloud/demon/demon.py	/^    def open3dPcd(self, data, vis=False):$/;"	m	class:DemonNet
 oplist	src/python/pointcloud/demon/lmbspecialops/doc/generate_doc.py	/^oplist = lmbspecialopslib.OP_LIST$/;"	v
 ops_markdown	src/python/pointcloud/demon/lmbspecialops/doc/generate_doc.py	/^ops_markdown = "\\n"$/;"	v
 options	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/src/dec/webpi_dec.h	/^  const WebPDecoderOptions* options;  \/\/ if not NULL, use alt decoding features$/;"	m	struct:WebPDecParams
@@ -10950,7 +10956,7 @@ palette_size	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/src/w
 palette_size_	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/src/enc/vp8li_enc.h	/^  int palette_size_;$/;"	m	struct:__anon121
 params_	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/examples/webpmux.c	/^  const char* params_;$/;"	m	struct:__anon47	file:
 params_	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/src/dec/idec_dec.c	/^  WebPDecParams params_;   \/\/ Params to store output info$/;"	m	struct:WebPIDecoder	file:
-parent_dir	src/python/reconstruction.py	/^    parent_dir = '\/media\/nrupatunga\/Data\/2018\/september\/3D-reconstuction\/SLAM_3DPoints_Trajectory\/'$/;"	v
+parent_dir	src/python/reconstruction.py	/^    parent_dir = '\/media\/nrupatunga\/Data\/2018\/september\/3D-reconstuction\/SLAM_3DPoints_Trajectory\/'$/;"	v	class:SceneReconstruction
 parse	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/src/demux/demux.c	/^  ParseStatus (*parse)(WebPDemuxer* const dmux);$/;"	m	struct:ChunkParser	file:
 part0_buf_	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/src/dec/idec_dec.c	/^  const uint8_t* part0_buf_;  \/\/ buffer to store partition #0$/;"	m	struct:__anon64	file:
 part0_size_	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/src/dec/idec_dec.c	/^  size_t part0_size_;         \/\/ size of partition #0$/;"	m	struct:__anon64	file:
@@ -11336,7 +11342,7 @@ selectDecoder	src/python/pointcloud/demon/lmbspecialops/build/lz4/src/lz4/progra
 seq	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/imageio/jpegdec.c	/^  int seq;  \/\/ this segment's sequence number [1, 255] for use in reassembly.$/;"	m	struct:__anon54	file:
 session	src/python/pointcloud/demon/demon.py	/^    session = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, gpu_options=gpu_options))$/;"	v	class:DemonNet
 session	src/python/pointcloud/pointcloud.py	/^    session = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, gpu_options=gpu_options))$/;"	v	class:PointCloud3d
-session	src/python/reconstruction.py	/^    session = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, gpu_options=gpu_options))$/;"	v
+session	src/python/reconstruction.py	/^    session = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, gpu_options=gpu_options))$/;"	v	class:SceneReconstruction
 set_attr	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/swig/libwebp_python_wrap.c	/^    int       (*set_attr)(PyObject *); \/* Set the value *\/$/;"	m	struct:swig_globalvar	file:
 set_base_from	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/depcomp	/^set_base_from ()$/;"	f
 set_dir_from	src/python/pointcloud/demon/lmbspecialops/build/webp/src/webp/depcomp	/^set_dir_from ()$/;"	f
