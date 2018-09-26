@@ -19,11 +19,13 @@ This class expects the data input directory 'input_dir' from SLAM to have this s
 import glob
 import os
 import cv2
+from tqdm import tqdm
 import numpy as np
 from PIL import Image as Im
 import tensorflow as tf
 from pointcloud.pointcloud import PointCloud3d
 from collections import OrderedDict
+from itertools import islice
 
 
 class SceneReconstruction(object):
@@ -31,7 +33,7 @@ class SceneReconstruction(object):
     """Class which provides utilities to reconstruct 3d from set of
     images and information from ORB-slam """
 
-    def __init__(self, sess, input_dir, width=64, height=48):
+    def __init__(self, sess, input_dir, slam_w, slam_h, depth_w=64, depth_h=48):
         """Initialize the input parameters
 
         Args:
@@ -43,17 +45,21 @@ class SceneReconstruction(object):
         """
         self.objPC = PointCloud3d(sess=session)
         self.objD = self.objPC.objD
-        self._process_data(input_dir)
 
         # data structures to store different intermediate data
         self.out = OrderedDict()
         self.map_struct = OrderedDict()
         self.R_t_s = OrderedDict()
 
+        self._process_data(input_dir)
+
         # In order to set these, please check the width and height of
         # the depth map
-        self.W = width
-        self.H = height
+        self.d_W = depth_w
+        self.d_H = depth_h
+
+        self.scale_factor = slam_w * 1. / depth_w
+        self.scale_factor = slam_h * 1. / depth_h
 
     def _process_data(self, input_dir):
         """Process the data in the input directory and set the required
@@ -84,7 +90,9 @@ class SceneReconstruction(object):
 
         # step-1 construct the point cloud for all the images
         self._get_pointclouds(self.rgb_folder)
-        self._find_pointcloud_transforms(self.out)
+        self._find_pointcloud_transforms(self.out,
+                                         scale_factor=self.scale_factor)
+        __import__('pdb').set_trace()
         self._merge_point_clouds(self.R_t_s)
 
     def _repeating_elements(self, arr):
@@ -181,7 +189,8 @@ class SceneReconstruction(object):
         img_files = self.img_files[:-1]  # last file does not have a point cloud so we do not use it
         kp_files = self.kp_files[:-1]
 
-        for i, (img_file, kp_file) in enumerate(zip(img_files, kp_files)):
+        for i, (img_file, kp_file) in tqdm(enumerate(zip(img_files, kp_files)),
+                                           desc='Processing slam data', total=len(img_files)):
             img = cv2.imread(img_file)
             kp_id = np.loadtxt(kp_file)
             kp_id = kp_id[kp_id[:, 2].argsort()]
@@ -214,7 +223,10 @@ class SceneReconstruction(object):
         # currently expecting png images
         self.img_files = sorted(glob.glob(os.path.join(input_dir, '*.' + file_ext)))
 
-        for i, (f1, f2) in enumerate(zip(self.img_files[:-1], self.img_files[1:])):
+        for i, (f1, f2) in tqdm(enumerate(zip(self.img_files[:-1],
+                                          self.img_files[1:])),
+                                desc='Generating point clouds', total=len(self.img_files) - 1):
+
             img1 = Im.open(f1)
             img2 = Im.open(f2)
 
@@ -238,8 +250,8 @@ class SceneReconstruction(object):
         keys = self.map_struct.keys()
         keys = [k for k in keys]
 
-        __import__('pdb').set_trace()
-        for i, (k1, k2) in enumerate(zip(keys[:-1], keys[1:])):
+        for i, (k1, k2) in tqdm(enumerate(zip(keys[:-1], keys[1:])),
+                                desc='Transforming point clouds'):
 
             mp1 = self.map_struct[k1]
             mp2 = self.map_struct[k2]
@@ -252,19 +264,78 @@ class SceneReconstruction(object):
             pc1 = np.array(self.out[k1]['pointcloud'].points)
             pc2 = np.array(self.out[k2]['pointcloud'].points)
 
-            pc1_match = pc1[kp_1[:, 1] * self.W + kp_1[:, 0]]
-            pc2_match = pc2[kp_2[:, 1] * self.W + kp_2[:, 0]]
+            pc1_match = pc1[kp_1[:, 1] * self.d_W + kp_1[:, 0]]
+            pc2_match = pc2[kp_2[:, 1] * self.d_W + kp_2[:, 0]]
 
             self.R_t_s[k2] = self.objPC.find_transform(pc1_match.tolist(), pc2_match.tolist())
 
-    def _merge_point_clouds(self, R_t_s):
+    def convert_transform_4x4(self, reg):
+        """Convert R, t, s to 4x4 matrix
+
+        Args:
+            reg: registration handle
+
+        Returns:
+            sRt: 4x4 transformation
+
+        """
+        sRt = np.eye(4)
+        sR = reg.s * reg.R
+        sRt[0:3, 0:3] = sR
+        sRt[0:3, 3] = reg.t
+
+        return sRt
+
+    def _merge_point_clouds(self, R_t_s, step=10):
         """Merge all the point clouds
 
         Args:
             R_t_s: rigid transformation between each point clouds
 
         """
-        pass
+        keys = self.R_t_s.keys()
+        keys = [k for k in keys]
+        keys = keys[0:11]
+
+        # get the first frame point cloud
+        pcd_base = {}
+        pcd_0 = OrderedDict(islice(self.out.items(), 0, 1))
+        for item in pcd_0.values():
+            pcd_base['points'] = np.asarray(item['pointcloud'].points)
+            pcd_base['colors'] = np.asarray(item['pointcloud'].colors)
+
+        count_step = 0
+        multiply_transforms = False
+
+        for key in tqdm(keys, desc='Merging point clouds'):
+
+            count_step = count_step + 1
+
+            # registration parameters
+            reg = R_t_s[key]
+            sRt = self.convert_transform_4x4(reg)
+
+            if not multiply_transforms:
+                sRt_prev = sRt
+            else:
+                sRt_prev = sRt_prev * sRt
+
+            # point cloud to be transformed
+            if count_step == step:
+                pcd = {}
+                pcd['points'] = np.asarray(self.out[key]['pointcloud'].points)
+                pcd['colors'] = np.asarray(self.out[key]['pointcloud'].colors)
+
+                # set the corrected transformation
+                reg.s = 1
+                reg.R = sRt_prev[0:3, 0:3]
+                reg.t = sRt_prev[0:3, 3]
+
+                transformed_pc = self.objPC.transform_point_cloud(pcd, reg)
+                pcd_base = self.objPC.merge_visualise(pcd_base, transformed_pc)
+                count_step = 0  # reset
+
+            multiply_transforms = True
 
 
 if __name__ == "__main__":
@@ -272,5 +343,6 @@ if __name__ == "__main__":
     session = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, gpu_options=gpu_options))
 
     parent_dir = '/media/nrupatunga/Data/2018/september/3D-reconstuction/SLAM_3DPoints_Trajectory/'
-    objScene3D = SceneReconstruction(session, parent_dir)
+    objScene3D = SceneReconstruction(session, parent_dir, slam_w=640,
+                                     slam_h=480)
     objScene3D.construct_3d()

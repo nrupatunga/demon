@@ -26,7 +26,11 @@ def visualize(iteration, error, X, Y, ax):
     ax.text2D(0.87, 0.92, 'Iteration: {:d}\nError: {:06.4f}'.format(iteration, error), horizontalalignment='center', verticalalignment='center', transform=ax.transAxes, fontsize='x-large')
     ax.legend(loc='upper left', fontsize='x-large')
     plt.draw()
-    plt.pause(0.001)
+    plt.pause(0.0000001)
+
+
+def dummy_visualize(iteration, error, X, Y, ax):
+    pass
 
 
 class PointCloud3d(object):
@@ -134,7 +138,7 @@ class PointCloud3d(object):
         plt.show()
         return pc1_match, pc2_match,
 
-    def find_transform(self, pc1, pc2):
+    def find_transform(self, pc1, pc2, vis=False):
         """Find the R and t between two point clouds
 
         Args:
@@ -143,12 +147,18 @@ class PointCloud3d(object):
         """
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        callback = partial(visualize, ax=ax)
+
+        if vis:
+            callback = partial(visualize, ax=ax)
+        else:
+            callback = partial(dummy_visualize, ax=ax)
 
         reg = rigid_registration(**{'X': np.asarray(pc1), 'Y': np.asarray(pc2)})
-
         reg.register(callback)
-        plt.show()
+
+        if vis:
+            plt.show()
+
         return reg
 
     def transform_point_cloud(self, pc, reg):
@@ -177,9 +187,11 @@ class PointCloud3d(object):
         colors = np.concatenate((pc1['colors'], pc2['colors']), axis=0)
 
         pcd.points = Vector3dVector(np.asarray(points))
-        pcd.colors = Vector3dVector(np.asarray(colors) / 255.)
-        # pcd.colors = Vector3dVector(np.asarray(colors))
+        # pcd.colors = Vector3dVector(np.asarray(colors) / 255.)
+        pcd.colors = Vector3dVector(np.asarray(colors))
         draw_geometries([pcd])
+
+        return pcd
 
 
 if __name__ == "__main__":
