@@ -149,14 +149,14 @@ class SceneReconstruction(object):
         cv2.imshow('output', new_img)
         cv2.waitKey(0)
 
-    def _find_matching_kp(self, mp1, mp2, debug=False):
+    def _find_matching_kp(self, mp1, mp2, vis=False):
         """find the matching keypoints between two mappoint struct
 
         Args:
             mp1: mappoint 1
             mp2: mappoint 2
         """
-        if debug:
+        if vis:
             cv2.imshow('input', np.concatenate((mp1['image'], mp2['image']), axis=1))
             cv2.imwrite('input.jpg', np.concatenate((mp1['image'], mp2['image']), axis=1))
             cv2.waitKey(0)
@@ -171,7 +171,7 @@ class SceneReconstruction(object):
         kp_1 = mp1['kp'][idx_1]
         kp_2 = mp2['kp'][idx_2]
 
-        if debug:
+        if vis:
             self._draw_keypoints(mp1['image'], kp_1, mp2['image'], kp_2)
 
         return kp_1, kp_2
@@ -318,7 +318,7 @@ class SceneReconstruction(object):
         """
         keys = self.R_t_s.keys()
         keys = [k for k in keys]
-        keys = keys[0:2]
+        keys = keys[0:10]
 
         # slam point clouds
         pcd_base = {}
@@ -337,7 +337,7 @@ class SceneReconstruction(object):
             pcd['points'] = np.asarray(self.out[key]['pointcloud'].points)
             pcd['colors'] = np.asarray(self.out[key]['pointcloud'].colors)
 
-            transformed_pc.append(self.objPC.transform_point_cloud(pcd, reg))
+            transformed_pc.append(self._convert_to_open3d_format(self.objPC.transform_point_cloud(pcd, reg)))
             # if first_merge:
             # pcd_final = self.objPC.merge_visualise(transformed_pc, transformed_pc)
             # first_merge = False
@@ -347,10 +347,10 @@ class SceneReconstruction(object):
             # pcd_base = {}
             # pcd_base['points'] = np.asarray(pcd_final.points)
             # pcd_base['colors'] = np.asarray(pcd_final.colors)
+        draw_geometries(transformed_pc)
 
-        __import__('pdb').set_trace()
-        source = self._convert_to_open3d_format(transformed_pc[0])
-        target = self._convert_to_open3d_format(transformed_pc[1])
+        source = transformed_pc[0]
+        target = transformed_pc[1]
 
         current_transformation = np.identity(4)
         # self.draw_registration_result_original_color(source, target, current_transformation)
